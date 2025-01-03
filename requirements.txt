@@ -1,0 +1,12 @@
+Flask
+opencv-python
+werkzeug
+numpy
+pandas
+torch
+facenet-pytorch
+torchvision
+deepface
+deep-sort-realtime
+tf-keras
+dlib

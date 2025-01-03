@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask DeepFace Recognition</title>
+</head>
+<body>
+    <h1>Upload Video and Face</h1>
+    <form action="/upload_video" method="post" enctype="multipart/form-data">
+        <input type="file" name="video" accept="video/*" required>
+        <button type="submit">Upload Video</button>
+    </form>
+    <form action="/upload_face" method="post" enctype="multipart/form-data">
+        <input type="file" name="face" accept="image/*" required>
+        <button type="submit">Upload Face</button>
+    </form>
+    <h1>Choose an Option</h1>
+
+    <form action="{{ url_for('select_model') }}" method="POST">
+        <label for="model">Select model name:</label>
+        <select name="model" id="model">
+            {% for model in models %}
+                <option value="{{ model }}" {% if model == model_name %}selected{% endif %}>{{ model }}</option>  <!-- bắt đầu từ model_name -->
+            {% endfor %}
+        </select>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <form action="{{ url_for('select_detector_backend') }}" method="POST">
+        <label for="detector_backend">Select detector backend:</label>
+        <select name="detector_backend" id="detector_backend">
+            {% for detector in backend %}
+                <option value="{{ detector }}" {% if detector == detector_backend %}selected{% endif %}>{{ detector }}</option>  <!-- bắt đầu từ detector_backend -->
+            {% endfor %}
+        </select>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <form action="{{ url_for('select_face_filename') }}" method="POST">
+        <label for="face_filename">Select face filename:</label>
+        <select name="face_filename" id="face_filename">
+            {% for filename in face_filename_list %}
+                <option value="{{ filename }}" {% if face_filename is not none and filename == face_filename %}selected{% endif %}>{{ filename }}</option>  <!-- bắt đầu từ face_filename -->
+            {% endfor %}
+        </select>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <form action="{{ url_for('select_blur_type') }}" method="POST">
+        <label for="blur_type">Select blur type:</label>
+        <select name="blur_type" id="blur_type">
+            {% for btype in blur_type_list %}
+                <option value="{{ btype }}" {% if btype == blur_name %}selected{% endif %}>{{ btype }}</option>  <!-- bắt đầu từ detector_backend -->
+            {% endfor %}
+        </select>
+
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>
