@@ -160,21 +160,35 @@ def process_video(input_path, output_path, face_path, model_name, detector_backe
             # if len(detect)>0:
             #     print(f'phát hiện {len(detect)} khuôn mặt')
             # Cập nhật,gán ID băằng DeepSort
-            tracks = tracker.update_tracks(detect, frame = frame)
-            for track in tracks:
-                if track.is_confirmed():
-                    track_id = track.track_id
+            # tracks = tracker.update_tracks(detect, frame = frame)
+            # for track in tracks:
+            #     if track.is_confirmed():
+            #         track_id = track.track_id
+            #         # Lấy toạ độ, class_id để vẽ lên hình ảnh
+            #         ltrb = track.to_ltrb()
+            #         class_id = track.get_det_class()
+            #         x1, y1, x2, y2 = map(int, ltrb)
+            #         # cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            #         if blur_name == 'pixelation':
+            #             frame = pixelate(frame, (x1, y1, x2-x1, y2-y1), pixel_size=10)
+            #         elif blur_name == 'gaussian blur':
+            #             roi = frame[y1:y2, x1:x2]
+            #             blurred_roi = cv2.GaussianBlur(roi, (99, 99), 30)
+            #             frame[y1:y2, x1:x2] = blurred_roi
+            for track in detect:
+                # if track.is_confirmed():
+                #     track_id = track.track_id
                     # Lấy toạ độ, class_id để vẽ lên hình ảnh
-                    ltrb = track.to_ltrb()
-                    class_id = track.get_det_class()
-                    x1, y1, x2, y2 = map(int, ltrb)
-                    # cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-                    if blur_name == 'pixelation':
-                        frame = pixelate(frame, (x1, y1, x2-x1, y2-y1), pixel_size=10)
-                    elif blur_name == 'gaussian blur':
-                        roi = frame[y1:y2, x1:x2]
-                        blurred_roi = cv2.GaussianBlur(roi, (99, 99), 30)
-                        frame[y1:y2, x1:x2] = blurred_roi
+                    # ltrb = track.to_ltrb()
+                # class_id = track.get_det_class()
+                x, y, w, h= track[0]
+                # cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                if blur_name == 'pixelation':
+                    frame = pixelate(frame, (x, y, w, h), pixel_size=10)
+                elif blur_name == 'gaussian blur':
+                    roi = frame[y:y+h, x:x+w]
+                    blurred_roi = cv2.GaussianBlur(roi, (99, 99), 30)
+                    frame[y:y+h, x:x+w] = blurred_roi
             #print('rectangle xong')        
         except Exception as e:
             print(f"Error processing frame: {e}")

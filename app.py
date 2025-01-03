@@ -55,7 +55,7 @@ app.config['BLUR_TYPE'] = BLUR_TYPE
 FACE_FILENAME_LIST = [file for file in os.listdir(app.config['FACES_FOLDER'])]
 
 model_name = app.config['MODEL'][6]
-detector_backend = app.config['BACKEND'][4]
+detector_backend = app.config['BACKEND'][0]
 blur_name = app.config['BLUR_TYPE'][1]
 face_filename = FACE_FILENAME_LIST[0] if len(FACE_FILENAME_LIST) > 0 else None
 
