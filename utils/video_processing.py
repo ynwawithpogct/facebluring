@@ -45,7 +45,8 @@ def add_face_to_db(face_path, model_name, detector_backend):
     # Bắt đầu tải ảnh 
     print('Bắt đầu tải ảnh...')
     n = 0
-    face_embeddings = DeepFace.represent(face_path, model_name=model_name, detector_backend=detector_backend)
+    face_embeddings = DeepFace.represent(face_path, model_name=model_name, detector_backend=detector_backend, enforce_detection=False)
+    print("Số mặt là: ", len([1 for face in face_embeddings if face['face_confidence']>0.7]))
     for face in face_embeddings:
         embedding = face["embedding"]
         #print(face)
@@ -116,7 +117,7 @@ def process_video(input_path, output_path, face_path, model_name, detector_backe
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
-    tracker = DeepSort(max_age=30)
+    tracker = DeepSort(max_age=25)
     print("Bắt đầu sử lý videos")
 
     while cap.isOpened():

@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request, Response, send_file, redirect, url_for
+from flask import Flask, render_template, request, Response, send_file, redirect, url_for, send_from_directory
 import os
 from utils.video_processing import process_video, generate_video_stream, add_face_to_db
 from werkzeug.utils import secure_filename
+from mimetypes import guess_type
 
 app = Flask(__name__)
 
@@ -17,31 +18,31 @@ app.config['PROCESSED_FOLDER'] = PROCESSED_FOLDER
 app.config['FACES_FOLDER'] = FACES_FOLDER
 
 MODEL = [
-  "VGG-Face", 
-  "Facenet", 
-  "Facenet512", 
-  "OpenFace", 
-  "DeepFace", 
-  "DeepID", 
+#   "VGG-Face", 
+#   "Facenet", 
+#   "Facenet512", 
+#   "OpenFace", 
+#   "DeepFace", 
+#   "DeepID", 
   "ArcFace", 
-  "Dlib", 
-  "SFace",
-  "GhostFaceNet"
+#   "Dlib", 
+#   "SFace",
+#   "GhostFaceNet"
 ]
 BACKEND = [
   'opencv', 
-  'ssd', 
-  'dlib', 
-  'mtcnn', 
+#   'ssd', 
+#   'dlib', 
+#   'mtcnn', 
   'fastmtcnn',
-  'retinaface', 
-  'mediapipe',
+#   'retinaface', 
+#   'mediapipe',
   'yolov8',
-  'yolov11s',
-  'yolov11n',
-  'yolov11m',
-  'yunet',
-  'centerface',
+#   'yolov11s',
+#   'yolov11n',
+#   'yolov11m',
+#   'yunet',
+#   'centerface',
 ]
 BLUR_TYPE = [
   'pixelation', 
@@ -53,15 +54,17 @@ app.config['BACKEND'] = BACKEND
 app.config['BLUR_TYPE'] = BLUR_TYPE
 
 FACE_FILENAME_LIST = [file for file in os.listdir(app.config['FACES_FOLDER'])]
+PROCESS_LIST = [file for file in os.listdir(app.config['PROCESSED_FOLDER'])]+["please choose one"]
 
-model_name = app.config['MODEL'][6]
+model_name = app.config['MODEL'][0]
 detector_backend = app.config['BACKEND'][0]
 blur_name = app.config['BLUR_TYPE'][1]
 face_filename = FACE_FILENAME_LIST[0] if len(FACE_FILENAME_LIST) > 0 else None
+process_filename = None
 
 @app.route('/')
 def index():
-    return render_template('index.html', models=app.config['MODEL'], model_name=model_name, backend=app.config['BACKEND'], detector_backend=detector_backend, face_filename_list=FACE_FILENAME_LIST, face_filename=face_filename, blur_type_list=app.config['BLUR_TYPE'], blur_name=blur_name)
+    return render_template('index.html', models=app.config['MODEL'], model_name=model_name, backend=app.config['BACKEND'], detector_backend=detector_backend, face_filename_list=FACE_FILENAME_LIST, face_filename=face_filename, blur_type_list=app.config['BLUR_TYPE'], blur_name=blur_name, process_list=PROCESS_LIST, process_filename=process_filename)
 
 @app.route('/upload_video', methods=['POST'])
 def upload_video():
@@ -82,7 +85,9 @@ def upload_video():
         face_path = os.path.join(app.config['FACES_FOLDER'], face_filename)
         process_video(video_path, output_path, face_path, model_name, detector_backend, blur_name)
 
-        return render_template('video_stream.html', video_path=output_path)
+        PROCESS_LIST = [file for file in os.listdir(app.config['PROCESSED_FOLDER'])]+["please choose one"]
+        # return render_template('video_stream.html', video_path=output_path)
+        return redirect(url_for('index'))
     else:
         return "No face filename chosen uploaded!", 300
 
@@ -110,7 +115,16 @@ def upload_face():
 @app.route('/stream/<filename>')
 def stream_video(filename):
     video_path = os.path.join(app.config['PROCESSED_FOLDER'], filename)
+    print('stream: ',  filename)
+    print('video path: ', video_path)
     return Response(generate_video_stream(video_path), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/processed/<filename>')
+def processed(filename):
+    print(f'{app.config['PROCESSED_FOLDER']}: ',  filename)
+    mime_type, _ = guess_type(filename)  # Tự động xác định MIME type từ tên tệp
+    print("mime_type: ", mime_type)
+    return send_from_directory(app.config['PROCESSED_FOLDER'], filename, mimetype=mime_type)
 
 @app.route('/download/<filename>')
 def download_video(filename):
@@ -157,6 +171,17 @@ def select_blur_type():
     blur_name = request.form.get('blur_type')
     # In ra giá trị được chọn
     print(f'Selected blur type: {blur_name}')
+    
+    # Bạn có thể lưu giá trị này vào biến toàn cục hoặc xử lý nó theo cách bạn muốn
+    return redirect(url_for('index'))
+
+@app.route('/select_process_filename', methods=['POST'])
+def select_process_filename():
+    # Lấy giá trị được lựa chọn từ form
+    global process_filename, PROCESS_LIST
+    process_filename = request.form.get('process_filename')
+    # In ra giá trị được chọn
+    print(f'Selected process filename: {process_filename}')
     
     # Bạn có thể lưu giá trị này vào biến toàn cục hoặc xử lý nó theo cách bạn muốn
     return redirect(url_for('index'))

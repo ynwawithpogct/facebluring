@@ -10,3 +10,4 @@ deepface
 deep-sort-realtime
 tf-keras
 dlib
+ultralytics

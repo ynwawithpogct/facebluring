@@ -60,5 +60,29 @@
 
         <button type="submit">Submit</button>
     </form>
+    <h1>Video</h1>
+
+    <form action="{{ url_for('select_process_filename') }}" method="POST">
+        <label for="process_filename">Select process filename:</label>
+        <select name="process_filename" id="process_filename">
+            {% for filename in process_list %}
+                <option value="{{ none if filename == 'please choose one' else filename }}" {% if (process_filename is not none and process_filename != "None" and filename == process_filename) or ((process_filename is none or process_filename == "None") and filename == "please choose one") %}selected{% endif %}>{{ filename }}</option>  <!-- bắt đầu từ "please choose one" -->
+            {% endfor %}
+        </select>
+
+        <button type="submit">Submit</button>
+    </form>
+    {% if process_filename is not none and process_filename != "None" %}
+    <p>{{process_filename}}</p>
+    <video width="640" height="360" controls>
+        <source src="{{ url_for('processed', filename=process_filename) }}" type="video/mp4">
+        <!-- <source src="{{ '/processed/' ~ process_filename }}" type="video/mp4"> -->
+        Your browser does not support video.
+    </video>
+    <h2>Download video</h2>
+    <a href="{{ url_for('download_video', filename=process_filename) }}" download>
+        <button>Download Video</button>
+    </a>
+    {% endif %}
 </body>
 </html>
